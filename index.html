@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abriendo...</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white;
+            color: #666;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+
+    <script>
+        function getParameterByName(name) {
+            const url = window.location.href;
+            name = name.replace(/[\\\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        const code = getParameterByName('code');
+        const deepLink = 'countall://contador/' + (code || '');
+        // Usar referrer para intentar pasar el código tras la instalación (requiere implementación extra en la app, 
+        // pero esta URL es la correcta para abrir la tienda).
+        const playStoreLink = 'https://play.google.com/store/apps/details?id=com.countall';
+
+        if (code) {
+            // 1. Intentar abrir la App inmediatamente
+            window.location.href = deepLink;
+
+            // 2. Si en 1 segundo seguimos aquí, redirigir a Play Store
+            setTimeout(function() {
+                // Comprobamos si la página sigue visible (si la app se abrió, la página suele ocultarse)
+                if (!document.hidden) {
+                    window.location.href = playStoreLink;
+                }
+            }, 1000);
+        } else {
+            // Si no hay código, ir a la tienda directamente
+            window.location.href = playStoreLink;
+        }
+    </script>
+</body>
+</html>
