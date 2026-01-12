@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compartir Contador</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        p {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #1976D2;
+        }
+        .secondary {
+            color: #2196F3;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Contador Compartido</h1>
+        <p id="message">Abriendo el contador en la app...</p>
+        <a id="btnOpen" href="#" class="btn">Abrir App</a>
+        <br>
+        <a href="https://play.google.com/store/apps/details?id=com.countall" class="secondary">¿No tienes la app? Descárgala aquí</a>
+    </div>
+
+    <script>
+        function getParameterByName(name) {
+            const url = window.location.href;
+            name = name.replace(/[\\\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        const code = getParameterByName('code'); // espera ?code=ABC123
+        const deepLink = 'countall://contador/' + (code || '');
+        const playStoreLink = 'https://play.google.com/store/apps/details?id=com.countall';
+
+        if (code) {
+            document.getElementById('btnOpen').href = deepLink;
+            
+            // Intentar abrir automáticamente
+            window.location.href = deepLink;
+
+            // Fallback si no se abre (timeout simple)
+            setTimeout(function() {
+                document.getElementById('message').innerText = 'Si la app no se abrió automáticamente, pulsa el botón de abajo.';
+            }, 2000);
+        } else {
+            document.getElementById('message').innerText = 'Enlace inválido. Falta el código del contador.';
+            document.getElementById('btnOpen').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
