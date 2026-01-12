@@ -6,36 +6,59 @@
     <title>Abriendo...</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: white;
-            color: #666;
+            background-color: #121212; /* Fondo negro de la app */
+            color: #FFFFFF;
         }
         .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border: 4px solid #333;
+            border-top: 4px solid #FFFFFF;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .btn {
+            background-color: #121212; /* Botón del mismo color que el fondo */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #FFFFFF; /* Borde blanco para que sea visible */
+            margin-top: 20px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .message {
+            font-size: 1.1rem;
+            text-align: center;
+            max-width: 80%;
+        }
     </style>
 </head>
 <body>
-    <div class="loader"></div>
+    <div class="loader" id="loader"></div>
+    <div class="message" id="message">Abriendo contador en la app...</div>
+    <a id="btnOpen" href="#" class="btn" style="display: none;">Abrir Contador</a>
 
     <script>
         function getParameterByName(name) {
             const url = window.location.href;
-            name = name.replace(/[\\\[\]]/g, '\\$&');
+            name = name.replace(/[\\]/g, '\\$&');
             const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
             const results = regex.exec(url);
             if (!results) return null;
@@ -45,23 +68,22 @@
 
         const code = getParameterByName('code');
         const deepLink = 'countall://contador/' + (code || '');
-        // Usar referrer para intentar pasar el código tras la instalación (requiere implementación extra en la app, 
-        // pero esta URL es la correcta para abrir la tienda).
         const playStoreLink = 'https://play.google.com/store/apps/details?id=com.countall';
 
         if (code) {
-            // 1. Intentar abrir la App inmediatamente
+            document.getElementById('btnOpen').href = deepLink;
             window.location.href = deepLink;
 
-            // 2. Si en 1 segundo seguimos aquí, redirigir a Play Store
             setTimeout(function() {
-                // Comprobamos si la página sigue visible (si la app se abrió, la página suele ocultarse)
                 if (!document.hidden) {
-                    window.location.href = playStoreLink;
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('message').innerText = '¿No tienes la app? Instálala para ver el contador.';
+                    document.getElementById('btnOpen').innerText = 'Instalar App';
+                    document.getElementById('btnOpen').href = playStoreLink;
+                    document.getElementById('btnOpen').style.display = 'inline-block';
                 }
-            }, 1000);
+            }, 1500);
         } else {
-            // Si no hay código, ir a la tienda directamente
             window.location.href = playStoreLink;
         }
     </script>
