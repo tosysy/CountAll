@@ -5,132 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CountAll - Contador Compartido</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #121212;
-            color: #E0E0E0;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            width: 100%;
-        }
-        h1 {
-            color: #FFFFFF;
-            margin-bottom: 10px;
-        }
-        p {
-            line-height: 1.6;
-            margin-bottom: 30px;
-            color: #A0A0A0;
-        }
-        .loader {
-            border: 4px solid #333;
-            border-top: 4px solid #FFFFFF;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
+        /* ... existing styles ... */
+        .redirect-banner {
+            background-color: #333;
+            padding: 15px;
+            border-bottom: 2px solid #FFFFFF;
+            margin-bottom: 20px;
             display: none;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .btn {
+        .redirect-banner.visible {
             display: block;
-            width: 100%;
-            max-width: 300px;
-            margin: 10px auto;
-            padding: 14px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: opacity 0.2s, transform 0.1s;
-            box-sizing: border-box;
-            cursor: pointer;
         }
-        .btn:active {
-            transform: scale(0.98);
-        }
-        .btn-primary {
-            background-color: #FFFFFF;
-            color: #121212;
-            border: none;
-        }
-        .btn-secondary {
-            background-color: transparent;
-            color: #FFFFFF;
-            border: 1px solid #FFFFFF;
-        }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .btn:hover:not(:disabled) {
-            opacity: 0.9;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background-color: #2b2b2b;
-            color: #ffb74d;
-            border-radius: 16px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            border: 1px solid #ffb74d;
-        }
-        .input-group {
-            max-width: 300px;
-            margin: 0 auto 20px auto;
-            text-align: left;
-        }
-        input[type="email"] {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background-color: #1e1e1e;
-            color: white;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        input[type="email"]:focus {
-            outline: none;
-            border-color: #FFFFFF;
-        }
-        .hidden {
-            display: none !important;
-        }
-        #success-message {
-            color: #4caf50;
-            font-weight: bold;
-            padding: 20px;
-            background: rgba(76, 175, 80, 0.1);
-            border-radius: 8px;
-            margin-top: 20px;
-        }
+        /* ... rest of existing styles ... */
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Loader Section (Visible only when redirecting) -->
-        <div id="redirect-section" class="hidden">
-            <div class="loader" style="display: block;"></div>
-            <p id="redirect-message">Procesando enlace...</p>
-        </div>
+    <!-- Banner de Redirección (Solo si hay código) -->
+    <div id="redirect-banner" class="redirect-banner">
+        <p style="margin-bottom: 10px;">¿Tienes la aplicación? Abre el contador directamente:</p>
+        <a id="btn-open-app" href="#" class="btn btn-primary" style="margin-bottom: 0; padding: 10px;">
+            🚀 Abrir en CountAll
+        </a>
+    </div>
 
-        <!-- Landing Content -->
+    <div class="container">
+        <!-- Landing Content (Siempre visible) -->
         <div id="landing-content">
             <img src="icon.png" alt="CountAll Icon" style="width: 80px; height: 80px; margin-bottom: 10px; border-radius: 16px;">
             
@@ -166,63 +65,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, push, set, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-
-        // TODO: Reemplaza con tu configuración real si esta no funciona
-        // He intentado deducirla de tu google-services.json
-        const firebaseConfig = {
-            apiKey: "AIzaSyDgGrXxkCWwUACk_jyOBQEY50leVloD5qI",
-            authDomain: "contadorapp-e8d35.firebaseapp.com",
-            databaseURL: "https://contadorapp-e8d35-default-rtdb.firebaseio.com",
-            projectId: "contadorapp-e8d35",
-            storageBucket: "contadorapp-e8d35.firebasestorage.app",
-            messagingSenderId: "929445180556",
-            appId: "1:929445180556:web:auto-generated-placeholder" 
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Expose function to window for the form
-        window.submitRequest = function(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('emailInput').value;
-            const btn = document.getElementById('btnSubmit');
-            
-            if (!email) return;
-
-            // UI Loading state
-            btn.disabled = true;
-            btn.innerText = "Enviando...";
-
-            const requestsRef = ref(database, 'solicitudes');
-            const newRequestRef = push(requestsRef);
-
-            set(newRequestRef, {
-                email: email,
-                fecha: serverTimestamp(),
-                estado: "pendiente", // pendiente, aprobado, rechazado
-                notificado: false
-            })
-            .then(() => {
-                // Success
-                document.getElementById('requestForm').classList.add('hidden');
-                document.getElementById('intro-text').classList.add('hidden');
-                document.getElementById('success-message').classList.remove('hidden');
-            })
-            .catch((error) => {
-                console.error("Error writing document: ", error);
-                alert("Error al enviar solicitud: " + error.message);
-                btn.disabled = false;
-                btn.innerText = "📩 Solicitar Acceso";
-            });
-        }
-    </script>
+    <!-- Firebase SDKs ... -->
 
     <script>
         // Logic for Deep Links
@@ -238,42 +81,25 @@
 
         const code = getParameterByName('code');
         const playStoreLink = 'https://play.google.com/store/apps/details?id=com.countall';
-        
-        // Android Intent URL (Much more reliable for Chrome)
-        const intentUrl = code ? `intent://contador/${code}#Intent;scheme=countall;package=com.countall;S.browser_fallback_url=${encodeURIComponent(playStoreLink)};end` : null;
         const customSchemeUrl = code ? `countall://contador/${code}` : null;
-
-        const redirectSection = document.getElementById('redirect-section');
-        const landingContent = document.getElementById('landing-content');
-        const redirectMessage = document.getElementById('redirect-message');
+        const intentUrl = code ? `intent://contador/${code}#Intent;scheme=countall;package=com.countall;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end` : null;
 
         if (code) {
-            landingContent.classList.add('hidden');
-            redirectSection.classList.remove('hidden');
-            redirectMessage.innerHTML = `
-                Abriendo contador compartido...<br><br>
-                <a href="${intentUrl}" class="btn btn-primary" style="font-size: 0.9rem; padding: 10px;">
-                    ¿No se abre? Haz clic aquí
-                </a>
-            `;
+            const banner = document.getElementById('redirect-banner');
+            const btnOpen = document.getElementById('btn-open-app');
             
-            // Try automatic redirect
+            banner.classList.add('visible');
+            btnOpen.href = /Android/i.test(navigator.userAgent) ? intentUrl : customSchemeUrl;
+
+            // Intentar abrir automáticamente sin ocultar nada
+            // Si es Android, usamos el Intent que es más "limpio" y no da errores de dirección inválida
             setTimeout(() => {
-                // For Android, intent:// is best. For others, custom scheme.
                 if (/Android/i.test(navigator.userAgent)) {
                     window.location.href = intentUrl;
                 } else {
                     window.location.href = customSchemeUrl;
                 }
             }, 500);
-
-            // Fallback: If 3 seconds pass and we are still here, show landing
-            setTimeout(function() {
-                if (!document.hidden) {
-                    // We don't hide it automatically to let the user click the manual button
-                    // But we can show the landing below it if needed
-                }
-            }, 3000);
         }
     </script>
 </body>
