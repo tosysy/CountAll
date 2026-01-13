@@ -225,7 +225,7 @@
     </script>
 
     <script>
-        // Logic for Deep Links (existing code)
+        // Logic for Deep Links
         function getParameterByName(name) {
             const url = window.location.href;
             name = name.replace(/[\]/g, '\\$&');
@@ -237,8 +237,11 @@
         }
 
         const code = getParameterByName('code');
-        const deepLink = 'countall://contador/' + (code || '');
         const playStoreLink = 'https://play.google.com/store/apps/details?id=com.countall';
+        
+        // Android Intent URL (Much more reliable for Chrome)
+        const intentUrl = code ? `intent://contador/${code}#Intent;scheme=countall;package=com.countall;S.browser_fallback_url=${encodeURIComponent(playStoreLink)};end` : null;
+        const customSchemeUrl = code ? `countall://contador/${code}` : null;
 
         const redirectSection = document.getElementById('redirect-section');
         const landingContent = document.getElementById('landing-content');
@@ -247,15 +250,30 @@
         if (code) {
             landingContent.classList.add('hidden');
             redirectSection.classList.remove('hidden');
-            redirectMessage.innerText = 'Abriendo contador compartido...';
-            window.location.href = deepLink;
+            redirectMessage.innerHTML = `
+                Abriendo contador compartido...<br><br>
+                <a href="${intentUrl}" class="btn btn-primary" style="font-size: 0.9rem; padding: 10px;">
+                    ¿No se abre? Haz clic aquí
+                </a>
+            `;
+            
+            // Try automatic redirect
+            setTimeout(() => {
+                // For Android, intent:// is best. For others, custom scheme.
+                if (/Android/i.test(navigator.userAgent)) {
+                    window.location.href = intentUrl;
+                } else {
+                    window.location.href = customSchemeUrl;
+                }
+            }, 500);
 
+            // Fallback: If 3 seconds pass and we are still here, show landing
             setTimeout(function() {
                 if (!document.hidden) {
-                    redirectSection.classList.add('hidden');
-                    landingContent.classList.remove('hidden');
+                    // We don't hide it automatically to let the user click the manual button
+                    // But we can show the landing below it if needed
                 }
-            }, 2000);
+            }, 3000);
         }
     </script>
 </body>
