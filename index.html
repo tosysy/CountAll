@@ -5,70 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CountAll - Contador Compartido</title>
     <style>
-        /* ... existing styles ... */
-        .redirect-banner {
-            background-color: #333;
-            padding: 15px;
-            border-bottom: 2px solid #FFFFFF;
-            margin-bottom: 20px;
-            display: none;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #E0E0E0;
+            text-align: center;
+            padding: 20px;
         }
-        .redirect-banner.visible {
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #FFFFFF;
+            margin-bottom: 10px;
+        }
+        p {
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #A0A0A0;
+        }
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid #FFFFFF;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .btn {
             display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+            padding: 14px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: opacity 0.2s, transform 0.1s;
+            box-sizing: border-box;
+            cursor: pointer;
         }
-        /* ... rest of existing styles ... */
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn-primary {
+            background-color: #FFFFFF;
+            color: #121212;
+            border: none;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: #FFFFFF;
+            border: 1px solid #FFFFFF;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-    <!-- Banner de Redirección (Solo si hay código) -->
-    <div id="redirect-banner" class="redirect-banner">
-        <p style="margin-bottom: 10px;">¿Tienes la aplicación? Abre el contador directamente:</p>
-        <a id="btn-open-app" href="#" class="btn btn-primary" style="margin-bottom: 0; padding: 10px;">
-            🚀 Abrir en CountAll
-        </a>
-    </div>
-
     <div class="container">
-        <!-- Landing Content (Siempre visible) -->
-        <div id="landing-content">
-            <img src="icon.png" alt="CountAll Icon" style="width: 80px; height: 80px; margin-bottom: 10px; border-radius: 16px;">
+        <div id="redirect-section">
+            <div class="loader"></div>
+            <h1 id="status-title">Abriendo CountAll...</h1>
+            <p id="status-message">Si tienes la aplicación instalada, se abrirá en unos segundos.</p>
             
-            <h1>CountAll</h1>
-            <div class="status-badge">Prueba Cerrada (Beta)</div>
+            <a id="btn-manual" href="#" class="btn btn-primary hidden">
+                🚀 Abrir en la aplicación
+            </a>
             
-            <div id="intro-text">
-                <p>
-                    CountAll es la forma más sencilla de llevar cuentas compartidas en tiempo real.
-                    <br><br>
-                    Actualmente estamos en fase de prueba cerrada. Ingresa tu correo de Google Play para solicitar acceso.
-                </p>
-            </div>
-
-            <!-- Formulario de Solicitud -->
-            <form id="requestForm" onsubmit="submitRequest(event)">
-                <div class="input-group">
-                    <input type="email" id="emailInput" placeholder="tu-email@gmail.com" required>
-                </div>
-                <button type="submit" id="btnSubmit" class="btn btn-primary">
-                    📩 Solicitar Acceso
-                </button>
-            </form>
-
-            <div id="success-message" class="hidden">
-                ✅ ¡Solicitud enviada!<br>
-                Te avisaremos por correo cuando tengas acceso para descargar la app.
-            </div>
-            
-            <a href="https://play.google.com/store/apps/details?id=com.countall" class="btn btn-secondary" style="margin-top: 20px;">
-                Soy Tester (Descargar en Google Play)
+            <a href="https://play.google.com/store/apps/details?id=com.countall" class="btn btn-secondary">
+                Descargar en Google Play
             </a>
         </div>
     </div>
 
-    <!-- Firebase SDKs ... -->
-
     <script>
-        // Logic for Deep Links
         function getParameterByName(name) {
             const url = window.location.href;
             name = name.replace(/[\]/g, '\\$&');
@@ -81,26 +106,38 @@
 
         const code = getParameterByName('code');
         const playStoreLink = 'https://play.google.com/store/apps/details?id=com.countall';
-        const customSchemeUrl = code ? `countall://contador/${code}` : null;
-        const intentUrl = code ? `intent://contador/${code}#Intent;scheme=countall;package=com.countall;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end` : null;
+        
+        // Android Intent: If app is installed, it opens. If not, it goes to S.browser_fallback_url
+        const intentUrl = code 
+            ? `intent://contador/${code}#Intent;scheme=countall;package=com.countall;S.browser_fallback_url=${encodeURIComponent(playStoreLink)};end`
+            : `intent://open#Intent;scheme=countall;package=com.countall;S.browser_fallback_url=${encodeURIComponent(playStoreLink)};end`;
+
+        const btnManual = document.getElementById('btn-manual');
+        const statusTitle = document.getElementById('status-title');
+        const statusMessage = document.getElementById('status-message');
 
         if (code) {
-            const banner = document.getElementById('redirect-banner');
-            const btnOpen = document.getElementById('btn-open-app');
+            btnManual.href = intentUrl;
+            btnManual.classList.remove('hidden');
             
-            banner.classList.add('visible');
-            btnOpen.href = /Android/i.test(navigator.userAgent) ? intentUrl : customSchemeUrl;
-
-            // Intentar abrir automáticamente sin ocultar nada
-            // Si es Android, usamos el Intent que es más "limpio" y no da errores de dirección inválida
+            // Auto redirect
             setTimeout(() => {
-                if (/Android/i.test(navigator.userAgent)) {
-                    window.location.href = intentUrl;
-                } else {
-                    window.location.href = customSchemeUrl;
-                }
+                window.location.href = intentUrl;
             }, 500);
+
+            // If user is still here after 3 seconds, they probably don't have the app or clicked "Cancel"
+            setTimeout(() => {
+                if (!document.hidden) {
+                    statusTitle.innerText = "¡Casi listo!";
+                    statusMessage.innerText = "Si la aplicación no se ha abierto, puedes descargarla o intentarlo manualmente.";
+                }
+            }, 3000);
+        } else {
+            // No code? Just redirect to Play Store immediately
+            window.location.href = playStoreLink;
         }
     </script>
+</body>
+</html>
 </body>
 </html>
