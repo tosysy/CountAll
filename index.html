@@ -13,7 +13,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #121212; /* Fondo negro de la app */
+            background-color: #121212;
             color: #E0E0E0;
             text-align: center;
             padding: 20px;
@@ -39,7 +39,7 @@
             height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px auto;
-            display: none; /* Oculto por defecto */
+            display: none;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -57,6 +57,7 @@
             font-size: 1rem;
             transition: opacity 0.2s, transform 0.1s;
             box-sizing: border-box;
+            cursor: pointer;
         }
         .btn:active {
             transform: scale(0.98);
@@ -71,23 +72,53 @@
             color: #FFFFFF;
             border: 1px solid #FFFFFF;
         }
-        .btn:hover {
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn:hover:not(:disabled) {
             opacity: 0.9;
         }
         .status-badge {
             display: inline-block;
             padding: 4px 12px;
             background-color: #2b2b2b;
-            color: #ffb74d; /* Naranja para beta */
+            color: #ffb74d;
             border-radius: 16px;
             font-size: 0.85rem;
             font-weight: bold;
             margin-bottom: 20px;
             border: 1px solid #ffb74d;
         }
-        /* Hidden classes for JS logic */
+        .input-group {
+            max-width: 300px;
+            margin: 0 auto 20px auto;
+            text-align: left;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background-color: #1e1e1e;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #FFFFFF;
+        }
         .hidden {
             display: none !important;
+        }
+        #success-message {
+            color: #4caf50;
+            font-weight: bold;
+            padding: 20px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -99,31 +130,101 @@
             <p id="redirect-message">Procesando enlace...</p>
         </div>
 
-        <!-- Landing Content (Visible when no code or manual access) -->
+        <!-- Landing Content -->
         <div id="landing-content">
-            <!-- Icon placeholder or Logo could go here -->
             <div style="font-size: 3rem; margin-bottom: 10px;">📊</div>
             
             <h1>CountAll</h1>
             <div class="status-badge">Prueba Cerrada (Beta)</div>
             
-            <p>
-                CountAll es la forma más sencilla de llevar cuentas compartidas en tiempo real.
-                <br><br>
-                Actualmente estamos en fase de prueba cerrada. Si quieres descargar la app, necesitas solicitar acceso.
-            </p>
+            <div id="intro-text">
+                <p>
+                    CountAll es la forma más sencilla de llevar cuentas compartidas en tiempo real.
+                    <br><br>
+                    Actualmente estamos en fase de prueba cerrada. Ingresa tu correo de Google Play para solicitar acceso.
+                </p>
+            </div>
 
-            <a href="mailto:tucorreo@ejemplo.com?subject=Solicitud%20Acceso%20Beta%20CountAll&body=Hola%2C%20quisiera%20unirme%20a%20la%20prueba%20cerrada%20de%20CountAll.%20Mi%20correo%20de%20Google%20Play%20es%3A%20" class="btn btn-primary">
-                📩 Solicitar Acceso
-            </a>
+            <!-- Formulario de Solicitud -->
+            <form id="requestForm" onsubmit="submitRequest(event)">
+                <div class="input-group">
+                    <input type="email" id="emailInput" placeholder="tu-email@gmail.com" required>
+                </div>
+                <button type="submit" id="btnSubmit" class="btn btn-primary">
+                    📩 Solicitar Acceso
+                </button>
+            </form>
+
+            <div id="success-message" class="hidden">
+                ✅ ¡Solicitud enviada!\n                Te avisaremos por correo cuando tengas acceso para descargar la app.
+            </div>
             
-            <a href="https://play.google.com/store/apps/details?id=com.countall" class="btn btn-secondary">
+            <a href="https://play.google.com/store/apps/details?id=com.countall" class="btn btn-secondary" style="margin-top: 20px;">
                 Soy Tester (Descargar en Google Play)
             </a>
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, set, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // TODO: Reemplaza con tu configuración real si esta no funciona
+        // He intentado deducirla de tu google-services.json
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgGrXxkCWwUACk_jyOBQEY50leVloD5qI",
+            authDomain: "contadorapp-e8d35.firebaseapp.com",
+            databaseURL: "https://contadorapp-e8d35-default-rtdb.firebaseio.com",
+            projectId: "contadorapp-e8d35",
+            storageBucket: "contadorapp-e8d35.firebasestorage.app",
+            messagingSenderId: "929445180556",
+            appId: "1:929445180556:web:auto-generated-placeholder" 
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Expose function to window for the form
+        window.submitRequest = function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('emailInput').value;
+            const btn = document.getElementById('btnSubmit');
+            
+            if (!email) return;
+
+            // UI Loading state
+            btn.disabled = true;
+            btn.innerText = "Enviando...";
+
+            const requestsRef = ref(database, 'solicitudes');
+            const newRequestRef = push(requestsRef);
+
+            set(newRequestRef, {
+                email: email,
+                fecha: serverTimestamp(),
+                estado: "pendiente", // pendiente, aprobado, rechazado
+                notificado: false
+            })
+            .then(() => {
+                // Success
+                document.getElementById('requestForm').classList.add('hidden');
+                document.getElementById('intro-text').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+                alert("Error al enviar solicitud: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "📩 Solicitar Acceso";
+            });
+        }
+    </script>
+
     <script>
+        // Logic for Deep Links (existing code)
         function getParameterByName(name) {
             const url = window.location.href;
             name = name.replace(/[\]/g, '\\$&');
@@ -138,32 +239,22 @@
         const deepLink = 'countall://contador/' + (code || '');
         const playStoreLink = 'https://play.google.com/store/apps/details?id=com.countall';
 
-        // Element Referneces
         const redirectSection = document.getElementById('redirect-section');
         const landingContent = document.getElementById('landing-content');
         const redirectMessage = document.getElementById('redirect-message');
 
         if (code) {
-            // If we have a code, we are in "Redirect Mode"
             landingContent.classList.add('hidden');
             redirectSection.classList.remove('hidden');
-            
             redirectMessage.innerText = 'Abriendo contador compartido...';
-            
-            // Try to open app
             window.location.href = deepLink;
 
-            // Fallback if app not installed
             setTimeout(function() {
                 if (!document.hidden) {
                     redirectSection.classList.add('hidden');
                     landingContent.classList.remove('hidden');
-                    // We show the landing page now, encouraging them to download or request access
                 }
             }, 2000);
-        } else {
-            // Normal landing page visit
-            // Ensure landing content is visible (default)
         }
     </script>
 </body>
