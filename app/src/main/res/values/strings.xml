@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CountAll</string>
+    <string name="add_counter">Agregar Contador</string>
+    <string name="counter_name_hint">Nombre del contador</string>
+    <string name="delete">Eliminar</string>
+    <string name="increment">+</string>
+    <string name="decrement">-</string>
+</resources>
