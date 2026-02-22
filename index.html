@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CountAll App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#B5DEFC"/>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <img src="icon-192.png" alt="CountAll Icon" class="header-icon">
+            <h1 class="app-title">CountAll</h1>
+        </div>
+    </header>
+
+    <!-- Landing page (no invite code) -->
+    <main class="container" id="landing">
+        <section class="hero">
+            <img src="icon-512.png" alt="CountAll App Icon" class="app-icon">
+            <h2 class="hero-title">La forma más sencilla de contar todo.</h2>
+            <p class="hero-subtitle">CountAll es la herramienta perfecta para llevar un registro de cualquier cosa que necesites. Simple, intuitiva y siempre a mano.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.countall" class="button-play" target="_blank" rel="noopener noreferrer">
+                <img src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png" alt="Descargar en Google Play">
+            </a>
+        </section>
+    </main>
+
+    <!-- Invite page (with invite code) -->
+    <main class="container" id="invite" style="display:none;">
+        <section class="hero">
+            <img src="icon-512.png" alt="CountAll App Icon" class="app-icon">
+            <h2 class="hero-title">Te han invitado a un contador compartido</h2>
+            <p class="hero-subtitle">Abre CountAll para unirte al contador.</p>
+            <a id="openAppBtn" href="#" class="open-app-btn">Abrir CountAll</a>
+            <p class="fallback-text">Si no tienes la app instalada:</p>
+            <a href="https://play.google.com/store/apps/details?id=com.countall" class="button-play" target="_blank" rel="noopener noreferrer">
+                <img src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png" alt="Descargar en Google Play">
+            </a>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 CountAll. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var code = params.get('code');
+
+            if (code) {
+                // Show invite page, hide landing
+                document.getElementById('landing').style.display = 'none';
+                document.getElementById('invite').style.display = '';
+
+                var deepLink = 'countall://contador/' + encodeURIComponent(code);
+                var playStoreUrl = 'https://play.google.com/store/apps/details?id=com.countall';
+
+                // Set button href
+                document.getElementById('openAppBtn').href = deepLink;
+
+                // Try to open app automatically via intent
+                var iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deepLink;
+                document.body.appendChild(iframe);
+
+                // Fallback: if app didn't open after 1.5s, redirect to Play Store
+                setTimeout(function() {
+                    // Only redirect if page is still visible (app didn't open)
+                    if (!document.hidden) {
+                        window.location.href = 'intent://contador/' + encodeURIComponent(code) +
+                            '#Intent;scheme=countall;package=com.countall;' +
+                            'S.browser_fallback_url=' + encodeURIComponent(playStoreUrl) + ';end';
+                    }
+                }, 1500);
+            }
+        })();
+    </script>
+
+</body>
+</html>
