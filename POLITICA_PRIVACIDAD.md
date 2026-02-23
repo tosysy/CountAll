@@ -52,9 +52,9 @@ Podemos actualizar nuestra Política de Privacidad de vez en cuando. Le notifica
 
 Si tiene alguna pregunta sobre esta Política de Privacidad, puede contactarnos:
 
-*   Por correo electrónico: [Tu Correo Electrónico de Contacto]
-*   Visitando esta página en nuestro sitio web: [Tu Sitio Web o Página de Soporte (Opcional)]
+*   Por correo electrónico: pablocousep@gmail.com
 
 ---
 
 **Fecha de entrada en vigor:** 23 de febrero de 2026
+
