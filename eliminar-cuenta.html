@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar cuenta y datos - CountAll</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#B5DEFC"/>
+    <style>
+        .doc { max-width: 760px; text-align: left; padding: 2.5rem 0 3rem; }
+        .doc h2 { font-size: 2.25rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--text-primary-color); }
+        .doc h3 { font-size: 1.35rem; font-weight: 500; margin: 2rem 0 0.5rem; color: var(--text-primary-color); }
+        .doc p, .doc li { font-size: 1.05rem; line-height: 1.6; color: var(--text-secondary-color); }
+        .doc ol, .doc ul { padding-left: 1.25rem; }
+        .doc li { margin-bottom: 0.4rem; }
+        .delete-btn {
+            display: inline-block; background-color: var(--on-primary-container); color: #FFFFFF;
+            font-size: 1.05rem; font-weight: 500; padding: 0.875rem 2rem; border-radius: 28px;
+            text-decoration: none; margin: 1rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .delete-btn:hover { transform: scale(1.03); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .note { font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <img src="icon-192.png" alt="CountAll Icon" class="header-icon">
+            <h1 class="app-title">CountAll</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="container doc">
+            <h2>Eliminar tu cuenta y tus datos</h2>
+            <p>En CountAll puedes solicitar la eliminación de tu cuenta y de todos los datos asociados en cualquier momento. Tienes dos opciones:</p>
+
+            <h3>Opción 1: Desde la aplicación (recomendado)</h3>
+            <p>Es la forma más rápida y la puedes hacer tú mismo al instante:</p>
+            <ol>
+                <li>Abre la aplicación <strong>CountAll</strong>.</li>
+                <li>Ve a <strong>Ajustes</strong>.</li>
+                <li>Pulsa <strong>Eliminar cuenta</strong> y confirma.</li>
+            </ol>
+            <p>La eliminación es inmediata y permanente.</p>
+
+            <h3>Opción 2: Por correo electrónico</h3>
+            <p>Si no puedes acceder a la aplicación, solicítanos la eliminación por correo. Envíanos un mensaje desde la dirección de email asociada a tu cuenta:</p>
+            <a class="delete-btn" href="mailto:pablocousep@gmail.com?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20cuenta%20-%20CountAll&body=Hola%2C%0A%0ASolicito%20la%20eliminaci%C3%B3n%20de%20mi%20cuenta%20de%20CountAll%20y%20de%20todos%20los%20datos%20asociados.%0A%0AEmail%20o%20nombre%20de%20usuario%20de%20mi%20cuenta%3A%20%0A%0AGracias.">Solicitar eliminación por correo</a>
+            <p class="note">O escribe manualmente a <strong>pablocousep@gmail.com</strong> indicando el email o nombre de usuario de tu cuenta. Procesaremos la solicitud en un plazo máximo de 30 días.</p>
+
+            <h3>Qué datos se eliminan</h3>
+            <p>Al eliminar tu cuenta se borran de forma permanente:</p>
+            <ul>
+                <li>Tu perfil (nombre de usuario y foto de perfil).</li>
+                <li>Tus contadores personales y sus copias de seguridad.</li>
+                <li>Tus amistades y solicitudes.</li>
+                <li>Tu vínculo de autenticación; si habías vinculado una cuenta de Google, queda libre para volver a usarse.</li>
+            </ul>
+            <p class="note">Los datos de los contadores <strong>compartidos</strong> pueden conservarse mientras sigan existiendo otros miembros con acceso a ellos.</p>
+
+            <p style="margin-top:2rem;"><a href="POLITICA_PRIVACIDAD.md">Ver la Política de Privacidad</a></p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 CountAll. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
