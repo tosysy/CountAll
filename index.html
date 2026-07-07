@@ -29,6 +29,8 @@
             <a href="https://play.google.com/store/apps/details?id=com.countall" class="button-play" target="_blank" rel="noopener noreferrer">
                 <img src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png" alt="Descargar en Google Play">
             </a>
+            <p class="fallback-text">También disponible en tu navegador (Android, iPhone y ordenador):</p>
+            <a href="https://tosysy.github.io/countall-web/" class="open-app-btn">Usar la versión web</a>
         </section>
     </main>
 
@@ -40,6 +42,7 @@
             <p class="hero-subtitle">Abre CountAll para unirte al contador.</p>
             <a id="openAppBtn" href="#" class="open-app-btn">Abrir CountAll</a>
             <p class="fallback-text">Si no tienes la app instalada:</p>
+            <a id="openWebBtn" href="https://tosysy.github.io/countall-web/" class="open-app-btn">Usar la versión web</a>
             <a href="https://play.google.com/store/apps/details?id=com.countall" class="button-play" target="_blank" rel="noopener noreferrer">
                 <img src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png" alt="Descargar en Google Play">
             </a>
@@ -58,15 +61,24 @@
             var code = params.get('code');
 
             if (code) {
-                // Show invite page, hide landing
+                var webAppUrl = 'https://tosysy.github.io/countall-web/?code=' + encodeURIComponent(code);
+                var isAndroid = /android/i.test(navigator.userAgent);
+
+                // iOS y escritorio: la app nativa no existe — ir directos a la web app
+                if (!isAndroid) {
+                    window.location.replace(webAppUrl);
+                    return;
+                }
+
+                // Android: intentar abrir la app nativa
                 document.getElementById('landing').style.display = 'none';
                 document.getElementById('invite').style.display = '';
 
                 var deepLink = 'countall://contador/' + encodeURIComponent(code);
-                var playStoreUrl = 'https://play.google.com/store/apps/details?id=com.countall';
 
-                // Set button href
+                // Set button hrefs
                 document.getElementById('openAppBtn').href = deepLink;
+                document.getElementById('openWebBtn').href = webAppUrl;
 
                 // Try to open app automatically via intent
                 var iframe = document.createElement('iframe');
@@ -74,13 +86,13 @@
                 iframe.src = deepLink;
                 document.body.appendChild(iframe);
 
-                // Fallback: if app didn't open after 1.5s, redirect to Play Store
+                // Fallback: si la app no se abrió en 1.5s, intent con fallback a la web app
                 setTimeout(function() {
                     // Only redirect if page is still visible (app didn't open)
                     if (!document.hidden) {
                         window.location.href = 'intent://contador/' + encodeURIComponent(code) +
                             '#Intent;scheme=countall;package=com.countall;' +
-                            'S.browser_fallback_url=' + encodeURIComponent(playStoreUrl) + ';end';
+                            'S.browser_fallback_url=' + encodeURIComponent(webAppUrl) + ';end';
                     }
                 }, 1500);
             }
